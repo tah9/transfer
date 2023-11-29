@@ -1,0 +1,81 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.genymobile.transfer'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.genymobile.transfer"
+        minSdk 22
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }  // 开启分包
+//    splits {
+//        abi {
+//            enable true
+//        }
+//    }
+//
+//    // 配置dex选项
+//    dexOptions {
+//        javaMaxHeapSize "4g" // 设置堆内存大小
+//    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    buildFeatures {
+        buildConfig = true
+    }
+
+
+}
+// 配置用于生成JAR文件的任务
+task createJar(type: Jar) {
+    from "${buildDir}/intermediates/javac/debug/classes/"
+    archiveFileName = "finish.jar" // 自定义JAR文件名
+}
+
+
+// 配置将JAR文件复制到指定位置的任务
+task copyJar(type: Copy) {
+    dependsOn createJar
+    from "${buildDir}/libs/"
+    into "." // 指定JAR文件的目标文件夹路径
+    include "*.jar"
+}
+
+// 将复制JAR文件的任务与构建任务关联
+build.dependsOn(copyJar)
+
+task makeDex(type: Exec, dependsOn: [copyJar]){
+    def a1, a2
+    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+        a1 = 'cmd'
+        a2 = '/c'
+    } else {
+        a1 = 'sh'
+        a2 = '-c'
+    }
+    def list = []
+    list.add(a1)
+    list.add(a2)
+    list.add("/home/mo/dependencies/Android/Sdk/build-tools/30.0.3/d8 --output ./test.zip $projectDir/finish.jar")
+    commandLine list
+}
+
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.10.0'
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+}
