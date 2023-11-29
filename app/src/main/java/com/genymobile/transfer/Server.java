@@ -1,8 +1,11 @@
 package com.genymobile.transfer;
 
 import android.net.LocalServerSocket;
+import android.net.LocalSocket;
+import android.net.LocalSocketAddress;
 
 import java.io.IOException;
+import java.net.Socket;
 
 /*
 在安卓设备内通过app_progress运行的文件 dex>jar

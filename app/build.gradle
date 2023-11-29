@@ -14,17 +14,7 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-    }  // 开启分包
-//    splits {
-//        abi {
-//            enable true
-//        }
-//    }
-//
-//    // 配置dex选项
-//    dexOptions {
-//        javaMaxHeapSize "4g" // 设置堆内存大小
-//    }
+    }
 
     buildTypes {
         release {
@@ -45,18 +35,12 @@ task createJar(type: Jar) {
 }
 
 
-// 配置将JAR文件复制到指定位置的任务
-task copyJar(type: Copy) {
-    dependsOn createJar
-    from "${buildDir}/libs/"
-    into "." // 指定JAR文件的目标文件夹路径
-    include "*.jar"
-}
+
 
 // 将复制JAR文件的任务与构建任务关联
-build.dependsOn(copyJar)
+build.dependsOn(createJar)
 
-task makeDex(type: Exec, dependsOn: [copyJar]){
+task makeDex(type: Exec, dependsOn: [createJar]){
     def a1, a2
     if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
         a1 = 'cmd'
@@ -68,7 +52,7 @@ task makeDex(type: Exec, dependsOn: [copyJar]){
     def list = []
     list.add(a1)
     list.add(a2)
-    list.add("/home/mo/dependencies/Android/Sdk/build-tools/30.0.3/d8 --output ./test.zip $projectDir/finish.jar")
+    list.add("/home/mo/dependencies/Android/Sdk/build-tools/30.0.3/d8 --output ./ $projectDir/build/libs/finish.jar")
     commandLine list
 }
 

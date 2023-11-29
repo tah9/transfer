@@ -9,6 +9,7 @@ import android.view.Surface;
 
 import com.genymobile.transfer.wrappers.SurfaceControl;
 
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
@@ -47,7 +48,7 @@ public class ScreenEncoder implements Device.RotationListener {
         return rotationChanged.getAndSet(false);
     }
 
-    public void streamScreen(Device device, OutputStream outputStream) throws IOException {
+    public void streamScreen(Device device, DataOutputStream outputStream) throws IOException {
         MediaFormat format = createFormat(bitRate, frameRate, iFrameInterval);
         device.setRotationListener(this);
         boolean alive;
@@ -80,7 +81,7 @@ public class ScreenEncoder implements Device.RotationListener {
         }
     }
 
-    private boolean encode(MediaCodec codec, OutputStream outputStream) throws IOException {
+    private boolean encode(MediaCodec codec, DataOutputStream outputStream) throws IOException {
         @SuppressWarnings("checkstyle:MagicNumber")
         byte[] buf = new byte[bitRate / 8]; // may contain up to 1 second of video
         boolean eof = false;
@@ -97,11 +98,16 @@ public class ScreenEncoder implements Device.RotationListener {
                     ByteBuffer outputBuffer = codec.getOutputBuffer(outputBufferId);
                     while (outputBuffer.hasRemaining()) {
                         int remaining = outputBuffer.remaining();
+                        System.out.println("remaining>"+remaining);
+                        System.out.println("buf.length>"+buf.length);
                         int len = Math.min(buf.length, remaining);
                         // the outputBuffer is probably direct (it has no underlying array), and LocalSocket does not expose channels,
                         // so we must copy the data locally to write them manually to the output stream
                         outputBuffer.get(buf, 0, len);
+                        outputStream.writeInt(len);
                         outputStream.write(buf, 0, len);
+                        outputStream.flush();
+                        System.out.println(len);
                     }
                 }
             } finally {
