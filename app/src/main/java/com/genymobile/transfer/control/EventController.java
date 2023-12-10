@@ -123,7 +123,7 @@ public class EventController {
         DataInputStream ois =  new DataInputStream(controlSocket.getInputStream());
 //
         try {
-            Thread.sleep(3000);
+//            Thread.sleep(3000);
 //            oos.writeLong(displayId);
             System.out.println("control: " + Server.device.getDisplayId());
 
@@ -179,19 +179,6 @@ public class EventController {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-//        ObjectInputStream ois = new ObjectInputStream(controlSocket.getInputStream());
-//        while (true) {
-//            try {
-//                byte type = ois.readByte();
-//                MotionEvent motion = MotionEvent.obtain((MotionEvent) ois.readObject());
-//                System.out.println(injectEvent(motion));
-//            } catch (Exception e) {
-//                throw new RuntimeException(e);
-//            }
-//        }
-//        while (true) {
-//            handleEvent();
-//        }
     }
 
     private void handleEvent() throws IOException {
