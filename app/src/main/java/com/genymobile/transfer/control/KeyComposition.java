@@ -1,4 +1,4 @@
-package com.genymobile.transfer;
+package com.genymobile.transfer.control;
 
 import java.util.HashMap;
 import java.util.Map;

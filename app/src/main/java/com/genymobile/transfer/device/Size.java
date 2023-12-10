@@ -1,4 +1,4 @@
-package com.genymobile.transfer;
+package com.genymobile.transfer.device;
 
 import android.graphics.Rect;
 

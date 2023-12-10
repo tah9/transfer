@@ -8,23 +8,22 @@ import java.lang.reflect.Method;
 
 @SuppressLint("PrivateApi")
 public final class ServiceManager {
-    private final Method getServiceMethod;
-
+    private static final Method getServiceMethod;
     private WindowManager windowManager;
-    private DisplayManager displayManager;
-    private InputManager inputManager;
-    private PowerManager powerManager;
+    private static DisplayManager displayManager;
+    private static InputManager inputManager;
+    private static PowerManager powerManager;
 
-    public ServiceManager() {
+    static {
         try {
-
             getServiceMethod = Class.forName("android.os.ServiceManager").getDeclaredMethod("getService", String.class);
         } catch (Exception e) {
             throw new AssertionError(e);
         }
     }
 
-    private IInterface getService(String service, String type) {
+
+    private static IInterface getService(String service, String type) {
         try {
             IBinder binder = (IBinder) getServiceMethod.invoke(null, service);
             Method asInterfaceMethod = Class.forName(type + "$Stub").getMethod("asInterface", IBinder.class);
@@ -41,21 +40,22 @@ public final class ServiceManager {
         return windowManager;
     }
 
-    public DisplayManager getDisplayManager() {
+    public static DisplayManager getDisplayManager() {
         if (displayManager == null) {
             displayManager = new DisplayManager(getService("display", "android.hardware.display.IDisplayManager"));
         }
         return displayManager;
     }
 
-    public InputManager getInputManager() {
+
+    public static InputManager getInputManager() {
         if (inputManager == null) {
             inputManager = new InputManager(getService("input", "android.hardware.input.IInputManager"));
         }
         return inputManager;
     }
 
-    public PowerManager getPowerManager() {
+    public static PowerManager getPowerManager() {
         if (powerManager == null) {
             powerManager = new PowerManager(getService("power", "android.os.IPowerManager"));
         }

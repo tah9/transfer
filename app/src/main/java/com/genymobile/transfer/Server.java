@@ -1,8 +1,16 @@
 package com.genymobile.transfer;
 
-import android.net.LocalServerSocket;
-import android.net.LocalSocket;
-import android.net.LocalSocketAddress;
+import android.content.Context;
+import android.hardware.display.DisplayManager;
+import android.os.Build;
+import android.view.Surface;
+
+import com.genymobile.transfer.comon.FakeContext;
+import com.genymobile.transfer.comon.Ln;
+import com.genymobile.transfer.control.EventController;
+import com.genymobile.transfer.device.Device;
+import com.genymobile.transfer.video.ScreenEncoder;
+import com.genymobile.transfer.video.VideoConnection;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -16,19 +24,26 @@ public final class Server {
         // not instantiable
     }
 
+
+
+    public static Device device;
+
     //PC端通过命令的方式启动jar，传递进来的参数包含码率、分辨率等配置信息
     private static void scrcpy(Options options) throws IOException {
         System.out.println("jar运行成功");
-        final Device device = new Device(options);
-        try (DesktopConnection connection = DesktopConnection.open(device)) {
-            ScreenEncoder screenEncoder = new ScreenEncoder(options.getBitRate());
 
+        device = new Device(options);
+
+        // start first video socket
+        try (VideoConnection connection = VideoConnection.open(device)) {
+            ScreenEncoder screenEncoder = new ScreenEncoder(options.getBitRate());
             // asynchronous
+            // start second socket > control socket
             startEventController(device, connection);
 
             try {
                 // synchronous
-                screenEncoder.streamScreen(device, connection.getDataOutputStream());
+                screenEncoder.streamScreen(device, connection.getFileDescriptor(),connection.getDataOutputStream());
             } catch (IOException e) {
                 // this is expected on close
                 Ln.d("Screen streaming stopped");
@@ -36,12 +51,12 @@ public final class Server {
         }
     }
 
-    private static void startEventController(final Device device, final DesktopConnection connection) {
+    private static void startEventController(final Device device, final VideoConnection connection) {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    new EventController(device, connection).control();
+                    new EventController(device).control();
                 } catch (IOException e) {
                     // this is expected on close
                     Ln.d("Event controller stopped");

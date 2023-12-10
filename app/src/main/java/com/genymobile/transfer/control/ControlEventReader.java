@@ -1,4 +1,7 @@
-package com.genymobile.transfer;
+package com.genymobile.transfer.control;
+
+
+import com.genymobile.transfer.comon.Ln;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -9,7 +12,7 @@ import java.nio.charset.StandardCharsets;
 public class ControlEventReader {
 
     private static final int KEYCODE_PAYLOAD_LENGTH = 9;
-    private static final int MOUSE_PAYLOAD_LENGTH = 13;
+    private static final int MOUSE_PAYLOAD_LENGTH = 44;
     private static final int SCROLL_PAYLOAD_LENGTH = 16;
     private static final int COMMAND_PAYLOAD_LENGTH = 1;
 
@@ -107,10 +110,16 @@ public class ControlEventReader {
         if (buffer.remaining() < MOUSE_PAYLOAD_LENGTH) {
             return null;
         }
-        int action = toUnsigned(buffer.get());
-        int buttons = buffer.getInt();
+        int action = buffer.getInt();//4 8 16 4 4 4 4
+        long pointerId = buffer.getLong();
         Position position = readPosition(buffer);
-        return ControlEvent.createMotionControlEvent(action, buttons, position);
+        float pressure = buffer.getFloat();
+        int actionButton = buffer.getInt();
+        int buttons = buffer.getInt();
+        int displayId = buffer.getInt();
+        buffer.position(0);
+        return ControlEvent.createMotionControlEvent(action, pointerId, position, pressure, actionButton, buttons,displayId);
+
     }
 
     private ControlEvent parseScrollControlEvent() {
@@ -132,10 +141,10 @@ public class ControlEventReader {
     }
 
     private static Position readPosition(ByteBuffer buffer) {
-        int x = toUnsigned(buffer.getShort());
-        int y = toUnsigned(buffer.getShort());
-        int screenWidth = toUnsigned(buffer.getShort());
-        int screenHeight = toUnsigned(buffer.getShort());
+        int x = buffer.getInt();
+        int y = buffer.getInt();
+        int screenWidth = buffer.getInt();
+        int screenHeight = buffer.getInt();
         return new Position(x, y, screenWidth, screenHeight);
     }
 

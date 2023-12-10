@@ -1,6 +1,7 @@
-package com.genymobile.transfer;
+package com.genymobile.transfer.control;
 
-import android.graphics.Point;
+
+import com.genymobile.transfer.device.Size;
 
 import java.util.Objects;
 
