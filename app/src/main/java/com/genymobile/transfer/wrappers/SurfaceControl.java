@@ -76,8 +76,12 @@ public final class SurfaceControl {
         }
     }
 
-    public static IBinder createDisplay(String name, boolean secure) {
+    public static IBinder createDisplay(String name) {
         try {
+            // Since Android 12 (preview), secure displays could not be created with shell permissions anymore.
+            // On Android 12 preview, SDK_INT is still R (not S), but CODENAME is "S".
+            boolean secure = Build.VERSION.SDK_INT < Build.VERSION_CODES.R || (Build.VERSION.SDK_INT == Build.VERSION_CODES.R && !"S".equals(
+                    Build.VERSION.CODENAME));
             return (IBinder) CLASS.getMethod("createDisplay", String.class, boolean.class).invoke(null, name, secure);
         } catch (Exception e) {
             throw new AssertionError(e);
@@ -170,6 +174,17 @@ public final class SurfaceControl {
             CLASS.getMethod("destroyDisplay", IBinder.class).invoke(null, displayToken);
         } catch (Exception e) {
             throw new AssertionError(e);
+        }
+    }
+
+    public static void setDisplaySurface(IBinder display, int orientation, Surface surface, Rect deviceRect, Rect displayRect, int layerStack) {
+        SurfaceControl.openTransaction();
+        try {
+            SurfaceControl.setDisplaySurface(display, surface);
+            SurfaceControl.setDisplayProjection(display, orientation, deviceRect, displayRect);
+            SurfaceControl.setDisplayLayerStack(display, layerStack);
+        } finally {
+            SurfaceControl.closeTransaction();
         }
     }
 }

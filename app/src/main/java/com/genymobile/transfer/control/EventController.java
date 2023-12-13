@@ -8,18 +8,15 @@ import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 
+import com.genymobile.transfer.Options;
 import com.genymobile.transfer.Server;
 import com.genymobile.transfer.comon.Ln;
-import com.genymobile.transfer.comon.NetworkConfig;
 import com.genymobile.transfer.device.Device;
 import com.genymobile.transfer.wrappers.InputManager;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.lang.reflect.Method;
 import java.net.Socket;
 
 
@@ -29,18 +26,19 @@ public class EventController {
     private final Device device;
     private final KeyCharacterMap charMap = KeyCharacterMap.load(KeyCharacterMap.VIRTUAL_KEYBOARD);
     private final Socket controlSocket;
-
+    private Options options;
     private long lastTouchDown;
     private static final int DEFAULT_DEVICE_ID = 0;
     private final PointersState pointersState = new PointersState();
     private final MotionEvent.PointerProperties[] pointerProperties = new MotionEvent.PointerProperties[PointersState.MAX_POINTERS];
     private final MotionEvent.PointerCoords[] pointerCoords = new MotionEvent.PointerCoords[PointersState.MAX_POINTERS];
 
-    public EventController(Device device) {
+    public EventController(Device device, Options options) {
         this.device = device;
+        this.options=options;
         initPointers();
         try {
-            controlSocket = new Socket(NetworkConfig.SOCKET_HOST, NetworkConfig.SOCKET_PORT);
+            controlSocket = new Socket(options.getHost(), options.getPort());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -125,7 +123,7 @@ public class EventController {
         try {
 //            Thread.sleep(3000);
 //            oos.writeLong(displayId);
-            System.out.println("control: " + Server.device.getDisplayId());
+//            System.out.println("control: " + Server.device.getDisplayId());
 
 //            oos.flush();
             while (true) {
@@ -136,10 +134,10 @@ public class EventController {
                      downTime = ois.readInt();
                      action   = ois.readInt();
                      count    = ois.readInt();
-                    System.out.println(count);
+                    System.out.println("pointerCounter "+count);
 
                 }catch (Exception e){
-                    e.printStackTrace();
+                    throw new RuntimeException(e);
                 }
 
 

@@ -1,19 +1,16 @@
 package com.genymobile.transfer;
 
-import android.content.Context;
-import android.hardware.display.DisplayManager;
-import android.os.Build;
-import android.view.Surface;
+import android.graphics.Rect;
 
-import com.genymobile.transfer.comon.FakeContext;
 import com.genymobile.transfer.comon.Ln;
 import com.genymobile.transfer.control.EventController;
 import com.genymobile.transfer.device.Device;
+import com.genymobile.transfer.device.DisplayInfo;
+import com.genymobile.transfer.device.Size;
 import com.genymobile.transfer.video.ScreenEncoder;
 import com.genymobile.transfer.video.VideoConnection;
 
 import java.io.IOException;
-import java.net.Socket;
 
 /*
 在安卓设备内通过app_progress运行的文件 dex>jar
@@ -25,7 +22,6 @@ public final class Server {
     }
 
 
-
     public static Device device;
 
     //PC端通过命令的方式启动jar，传递进来的参数包含码率、分辨率等配置信息
@@ -33,17 +29,21 @@ public final class Server {
         System.out.println("jar运行成功");
 
         device = new Device(options);
+        Size size = device.getDisplayInfo().getSize();
+        Rect rect = new Rect(0, 0, size.getWidth(),size.getHeight());
+        options.setDisplayRegion(rect);
+        options.setCropRegion(rect);
 
         // start first video socket
-        try (VideoConnection connection = VideoConnection.open(device)) {
-            ScreenEncoder screenEncoder = new ScreenEncoder(options.getBitRate());
+        try (VideoConnection connection = new VideoConnection(device,options)) {
+            ScreenEncoder screenEncoder = new ScreenEncoder();
             // asynchronous
             // start second socket > control socket
-            startEventController(device, connection);
+            startEventController(device, options,connection);
 
             try {
                 // synchronous
-                screenEncoder.streamScreen(device, connection.getFileDescriptor(),connection.getDataOutputStream());
+                screenEncoder.streamScreen(options, connection.getFileDescriptor());
             } catch (IOException e) {
                 // this is expected on close
                 Ln.d("Screen streaming stopped");
@@ -51,12 +51,12 @@ public final class Server {
         }
     }
 
-    private static void startEventController(final Device device, final VideoConnection connection) {
+    private static void startEventController(final Device device,Options options,final VideoConnection connection) {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    new EventController(device).control();
+                    new EventController(device,options).control();
                 } catch (IOException e) {
                     // this is expected on close
                     Ln.d("Event controller stopped");
@@ -68,18 +68,6 @@ public final class Server {
     @SuppressWarnings("checkstyle:MagicNumber")
     private static Options createOptions(String... args) {
         Options options = new Options();
-        if (args.length < 1) {
-            return options;
-        }
-        int maxSize = Integer.parseInt(args[0]) & ~7; // multiple of 8
-        options.setMaxSize(maxSize);
-
-        if (args.length < 2) {
-            return options;
-        }
-        int bitRate = Integer.parseInt(args[1]);
-        options.setBitRate(bitRate);
-
         return options;
     }
 

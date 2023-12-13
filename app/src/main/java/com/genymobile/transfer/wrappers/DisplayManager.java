@@ -7,7 +7,6 @@ import android.hardware.display.VirtualDisplay;
 import android.os.Build;
 import android.os.IInterface;
 import android.view.Display;
-import android.view.Surface;
 
 import com.genymobile.transfer.comon.Command;
 import com.genymobile.transfer.comon.FakeContext;
@@ -29,14 +28,14 @@ public final class DisplayManager {
     private static DisplayInfo getDisplayInfoFromDumpsysDisplay(int displayId) {
         try {
             String dumpsysDisplayOutput = Command.execReadOutput("dumpsys", "display");
-            return parseDisplayInfo(dumpsysDisplayOutput, displayId);
+            return parseDisplayDetailFromAdbPrint(dumpsysDisplayOutput, displayId);
         } catch (Exception e) {
             Ln.e("Could not get display info from \"dumpsys display\" output", e);
             return null;
         }
     }
 
-    public static DisplayInfo parseDisplayInfo(String dumpsysDisplayOutput, int displayId) {
+    public static DisplayInfo parseDisplayDetailFromAdbPrint(String dumpsysDisplayOutput, int displayId) {
         Pattern regex = Pattern.compile(
                 "^    mOverrideDisplayInfo=DisplayInfo\\{\".*?, displayId " + displayId + ".*?(, FLAG_.*)?, real ([0-9]+) x ([0-9]+).*?, "
                         + "rotation ([0-9]+).*?, layerStack ([0-9]+)",

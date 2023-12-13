@@ -2,6 +2,7 @@ package com.genymobile.transfer.device;
 
 
 //import android.content.IOnPrimaryClipChangedListener;
+
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.IBinder;
@@ -23,11 +24,7 @@ import com.genymobile.transfer.wrappers.SurfaceControl;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public  class Device {
-    public int getDisplayId() {
-        return displayId;
-    }
-
+public class Device {
 
     public static final int POWER_MODE_OFF = SurfaceControl.POWER_MODE_OFF;
     public static final int POWER_MODE_NORMAL = SurfaceControl.POWER_MODE_NORMAL;
@@ -51,12 +48,8 @@ public  class Device {
         void onClipboardTextChanged(String text);
     }
 
-    private final Size deviceSize;
-//    private final Rect crop;
-    private int maxSize;
 //    private final int lockVideoOrientation;
 
-    private ScreenInfo screenInfo;
     private RotationListener rotationListener;
     private FoldListener foldListener;
     private ClipboardListener clipboardListener;
@@ -69,7 +62,7 @@ public  class Device {
     /**
      * Logical display identifier
      */
-    private  int displayId;
+    private int displayId=0;
 
     /**
      * The surface flinger layer stack associated with this logical display
@@ -78,26 +71,21 @@ public  class Device {
 
 //    private final boolean supportsInputEvents;
 
-    public Device(Options options)  {
+    private DisplayInfo displayInfo;
 
-        displayId = options.getDisplayId();
-        DisplayInfo displayInfo = ServiceManager.getDisplayManager().getDisplayInfo(displayId);
-//        if (displayInfo == null) {
-//            Ln.e("Display " + displayId + " not found\n" + LogUtils.buildDisplayListMessage());
-//            throw new ConfigurationException("Unknown display id: " + displayId);
-//        }
+    public DisplayInfo getDisplayInfo() {
+        return displayInfo;
+    }
 
-        int displayInfoFlags = displayInfo.getFlags();
+    public void setDisplayInfo(DisplayInfo displayInfo) {
+        this.displayInfo = displayInfo;
+    }
 
-        deviceSize = displayInfo.getSize();
-//        crop = options.getCrop();
-//        crop = options.get();
-        maxSize = options.getMaxSize();
+    public Device(Options options) {
+        this.displayInfo = ServiceManager.getDisplayManager().getDisplayInfo(0);
 //        lockVideoOrientation = options.getLockVideoOrientation();
 
 //        screenInfo = ScreenInfo.computeScreenInfo(displayInfo.getRotation(), deviceSize, crop, maxSize, lockVideoOrientation);
-        Size size = new Size(1080, 2160);
-        screenInfo = new ScreenInfo(size,size,false);
         layerStack = displayInfo.getLayerStack();
 
 //        ServiceManager.getWindowManager().registerRotationWatcher(new IRotationWatcher.Stub() {
@@ -178,14 +166,6 @@ public  class Device {
 //        }
     }
 
-//    public synchronized void setMaxSize(int newMaxSize) {
-//        maxSize = newMaxSize;
-//        screenInfo = ScreenInfo.computeScreenInfo(screenInfo.getReverseVideoRotation(), deviceSize, crop, newMaxSize, lockVideoOrientation);
-//    }
-
-    public synchronized ScreenInfo getScreenInfo() {
-        return screenInfo;
-    }
 
     public int getLayerStack() {
         return layerStack;
