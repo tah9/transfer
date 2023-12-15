@@ -10,26 +10,34 @@ import com.genymobile.transfer.device.Size;
 import java.io.Closeable;
 import java.io.FileDescriptor;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
-public final class VideoConnection implements Closeable {
+public final class VideoConnection {
 
     private final Socket socket;
     private FileDescriptor fileDescriptor;
     private Options options;
 
+    public OutputStream getOutputStream(){
+        try {
+            return socket.getOutputStream();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
     /*
       连接服务器
       并向客户端发送设备名称和宽高
-       */
+    */
     public VideoConnection(Device device, Options options) throws IOException {
         this.options = options;
         this.socket = connect(options.getHost(), options.getPort());
         this.fileDescriptor = ParcelFileDescriptor.fromSocket(socket).getFileDescriptor();
-        Size videoSize = device.getDisplayInfo().getSize();
-        send(Device.getDeviceName(), videoSize.getWidth(), videoSize.getHeight());
+//        Size videoSize = device.getDisplayInfo().getSize();
+//        send(Device.getDeviceName(), videoSize.getWidth(), videoSize.getHeight());
     }
 
     private Socket connect(String host, int port) throws IOException {
@@ -37,11 +45,11 @@ public final class VideoConnection implements Closeable {
     }
 
 
-    public void close() throws IOException {
-        socket.shutdownInput();
-        socket.shutdownOutput();
-        socket.close();
-    }
+//    public void close() throws IOException {
+//        socket.shutdownInput();
+//        socket.shutdownOutput();
+//        socket.close();
+//    }
 
     @SuppressWarnings("checkstyle:MagicNumber")
     private void send(String deviceName, int width, int height) throws IOException {

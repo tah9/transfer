@@ -28,35 +28,24 @@ public final class Server {
     private static void scrcpy(Options options) throws IOException {
         System.out.println("jar运行成功");
 
-        device = new Device(options);
-        Size size = device.getDisplayInfo().getSize();
-        Rect rect = new Rect(0, 0, size.getWidth(),size.getHeight());
-        options.setDisplayRegion(rect);
-        options.setCropRegion(rect);
-
+        int pid = android.os.Process.myPid();
+        System.out.println("PID: " + pid);
         // start first video socket
-        try (VideoConnection connection = new VideoConnection(device,options)) {
-            ScreenEncoder screenEncoder = new ScreenEncoder();
-            // asynchronous
-            // start second socket > control socket
-            startEventController(device, options,connection);
+        VideoConnection connection = new VideoConnection(device, options);
+        ScreenEncoder screenEncoder = new ScreenEncoder();
+        // asynchronous
+        // start second socket > control socket
+        startEventController(device, options, connection);
+        screenEncoder.streamScreen(options, connection.getFileDescriptor(), connection.getOutputStream());
 
-            try {
-                // synchronous
-                screenEncoder.streamScreen(options, connection.getFileDescriptor());
-            } catch (IOException e) {
-                // this is expected on close
-                Ln.d("Screen streaming stopped");
-            }
-        }
     }
 
-    private static void startEventController(final Device device,Options options,final VideoConnection connection) {
+    private static void startEventController(final Device device, Options options, final VideoConnection connection) {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    new EventController(device,options).control();
+                    new EventController(device, options).control();
                 } catch (IOException e) {
                     // this is expected on close
                     Ln.d("Event controller stopped");
@@ -68,6 +57,19 @@ public final class Server {
     @SuppressWarnings("checkstyle:MagicNumber")
     private static Options createOptions(String... args) {
         Options options = new Options();
+        options.setOptionsFromString(options, args[0]);
+
+        device = new Device(options);
+        Size size = device.getDisplayInfo().getSize();
+        Rect rect = new Rect(0, 0, size.getWidth(), size.getHeight());
+        options.setDisplayRegion(rect);
+        options.setCropRegion(rect);
+
+        if (options.getCropRegion() == null) {
+            options.setCropRegion(rect);
+        }
+
+        System.out.println(options.string());
         return options;
     }
 
@@ -80,6 +82,7 @@ public final class Server {
         });
 
         Options options = createOptions(args);
+
         scrcpy(options);
     }
 }

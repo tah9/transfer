@@ -31,9 +31,10 @@ public final class IO {
                 }
                 remaining -= w;
             } catch (ErrnoException e) {
-                if (e.errno != OsConstants.EINTR) {
-                    throw new IOException(e);
-                }
+//                e.printStackTrace();
+//                if (e.errno != OsConstants.EINTR) {
+//                    throw new IOException(e);
+//                }
             }
         }
     }

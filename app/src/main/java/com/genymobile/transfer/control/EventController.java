@@ -35,7 +35,7 @@ public class EventController {
 
     public EventController(Device device, Options options) {
         this.device = device;
-        this.options=options;
+        this.options = options;
         initPointers();
         try {
             controlSocket = new Socket(options.getHost(), options.getPort());
@@ -98,6 +98,7 @@ public class EventController {
             throw new RuntimeException(e);
         }
     }
+
     private ControlEvent createControl(DataInputStream dis) {
         try {
             int action = dis.readInt();//4 8 16 4 4 4 4
@@ -107,7 +108,7 @@ public class EventController {
             int actionButton = dis.readInt();
             int buttons = dis.readInt();
             int displayId = dis.readInt();
-            return ControlEvent.createMotionControlEvent(action, pointerId, position, pressure, actionButton, buttons,displayId);
+            return ControlEvent.createMotionControlEvent(action, pointerId, position, pressure, actionButton, buttons, displayId);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -118,30 +119,30 @@ public class EventController {
         // on start, turn screen on
         turnScreenOn();
         DataOutputStream oos = new DataOutputStream(controlSocket.getOutputStream());
-        DataInputStream ois =  new DataInputStream(controlSocket.getInputStream());
+        DataInputStream ois = new DataInputStream(controlSocket.getInputStream());
 //
         try {
 //            Thread.sleep(3000);
 //            oos.writeLong(displayId);
-//            System.out.println("control: " + Server.device.getDisplayId());
+            System.out.println("control: " + Server.device.getDisplayInfo().getDisplayId());
 
 //            oos.flush();
             while (true) {
                 int downTime = 0;
-                int action=0;
-                int count=0;
-                try{
-                     downTime = ois.readInt();
-                     action   = ois.readInt();
-                     count    = ois.readInt();
-                    System.out.println("pointerCounter "+count);
+                int action = 0;
+                int count = 0;
+                try {
+                    downTime = ois.readInt();
+                    action = ois.readInt();
+                    count = ois.readInt();
+                    System.out.println("pointerCounter " + count);
 
-                }catch (Exception e){
+                } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
 
 
-                try{
+                try {
                     for (int i = 0; i < count; i++) {
                         pointerProperties[i].id = ois.readInt();
                         MotionEvent.PointerCoords pointerCoord = pointerCoords[i];
@@ -149,7 +150,7 @@ public class EventController {
                         pointerCoord.y = ois.readInt();
                         pointerCoord.pressure = ois.readFloat();
                     }
-                }catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
 
@@ -163,7 +164,7 @@ public class EventController {
                 }
 
                 try {
-                    MotionEvent event= MotionEvent.obtain(downTime, SystemClock.uptimeMillis(),
+                    MotionEvent event = MotionEvent.obtain(downTime, SystemClock.uptimeMillis(),
                             action, count, pointerProperties, pointerCoords,
                             0, buttonState, 0, 0, DEFAULT_DEVICE_ID,
                             0, source, 0);
@@ -339,7 +340,6 @@ public class EventController {
                         0);
         return device.injectEvent(event, Device.INJECT_MODE_ASYNC);
     }
-
 
 
     private boolean injectScroll(Position position, int hScroll, int vScroll) {

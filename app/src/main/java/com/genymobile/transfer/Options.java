@@ -2,22 +2,101 @@ package com.genymobile.transfer;
 
 import android.graphics.Rect;
 
+import androidx.annotation.NonNull;
+
+import java.lang.reflect.Field;
+
 
 public class Options {
 
-    private int dpi=401;
-    private String host="192.168.43.248";
-    private int port=20001;
+    private int repeatFrame = 100_000;//us
+    private int dpi = 401;
+    private String host = "10.0.2.2";
+    private int port = 20002;
     private int targetDisplayId = 0;
-    private int bitRate=8_000_000;
-    private int fps=60;
-    private int refreshInterval=3;
+    private int bitRate = 8_000_000;
+    private int fps = 60;
+    private int refreshInterval = 3;
     private int layerStack = 0;
-    private String displayName="oi";
-    private boolean mirror=true;//true mirror,false expand
+    private String displayName = "oi";
+    private boolean mirror = true;//true mirror,false expand
     private Rect displayRegion;
     private Rect cropRegion;
     private int orientation = 0;
+    private int MaxFps = 60;
+
+    public int getMaxFps() {
+        return MaxFps;
+    }
+
+    public void setMaxFps(int maxFps) {
+        MaxFps = maxFps;
+    }
+
+    public void setOptionsFromString(Options options, String input) {
+        String[] keyValuePairs = input.split(",");
+        for (String pair : keyValuePairs) {
+            String[] keyValue = pair.split("=");
+            if (keyValue.length == 2) {
+                String key = keyValue[0].trim();
+                String value = keyValue[1].trim();
+                try {
+                    Field field = options.getClass().getDeclaredField(key);
+                    field.setAccessible(true);
+                    if (field.getType().equals(int.class)) {
+                        field.setInt(options, Integer.parseInt(value));
+                    } else if (field.getType().equals(String.class)) {
+                        field.set(options, value);
+                    } else if (field.getType().equals(boolean.class)) {
+                        field.setBoolean(options, Boolean.parseBoolean(value));
+                    } else if (field.getType().equals(Rect.class)) {
+                        // 0 0 1080 2400
+                        String[] s = value.split(" ");
+                        field.set(options, new Rect(Integer.parseInt(s[0]),
+                                Integer.parseInt(s[1]),
+                                Integer.parseInt(s[2]),
+                                Integer.parseInt(s[3])));
+                    }
+                    // 可以根据需要添加其他数据类型的处理
+                } catch (NoSuchFieldException | IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public String string() {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(getClass().getSimpleName()).append(" [");
+
+        Field[] fields = getClass().getDeclaredFields();
+        for (Field field : fields) {
+            field.setAccessible(true); // 让我们能够访问私有字段
+            try {
+                String fieldName = field.getName();
+                Object value = field.get(this); // 获取字段的值
+                stringBuilder.append(fieldName).append("=").append(value).append(", ");
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // 删除最后一个逗号和空格
+        if (fields.length > 0) {
+            stringBuilder.setLength(stringBuilder.length() - 2);
+        }
+
+        stringBuilder.append("]");
+        return stringBuilder.toString();
+    }
+
+    public int getRepeatFrame() {
+        return repeatFrame;
+    }
+
+    public void setRepeatFrame(int repeatFrame) {
+        this.repeatFrame = repeatFrame;
+    }
 
     public int getOrientation() {
         return orientation;
