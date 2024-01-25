@@ -5,17 +5,15 @@ import android.os.ParcelFileDescriptor;
 import com.genymobile.transfer.Options;
 import com.genymobile.transfer.comon.IO;
 import com.genymobile.transfer.device.Device;
-import com.genymobile.transfer.device.Size;
 
-import java.io.Closeable;
 import java.io.FileDescriptor;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 
-public final class VideoConnection {
+public final class VideoServer {
 
     private final Socket socket;
     private FileDescriptor fileDescriptor;
@@ -32,9 +30,12 @@ public final class VideoConnection {
       连接服务器
       并向客户端发送设备名称和宽高
     */
-    public VideoConnection(Device device, Options options) throws IOException {
+    public VideoServer(Device device, Options options) throws IOException {
         this.options = options;
-        this.socket = connect(options.getHost(), options.getPort());
+        ServerSocket serverSocket = new ServerSocket(20001);
+
+        this.socket = serverSocket.accept();
+//        this.socket = connect(options.getHost(), options.getPort());
         this.fileDescriptor = ParcelFileDescriptor.fromSocket(socket).getFileDescriptor();
 //        Size videoSize = device.getDisplayInfo().getSize();
 //        send(Device.getDeviceName(), videoSize.getWidth(), videoSize.getHeight());

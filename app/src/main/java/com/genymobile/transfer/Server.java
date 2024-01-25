@@ -5,10 +5,9 @@ import android.graphics.Rect;
 import com.genymobile.transfer.comon.Ln;
 import com.genymobile.transfer.control.EventController;
 import com.genymobile.transfer.device.Device;
-import com.genymobile.transfer.device.DisplayInfo;
 import com.genymobile.transfer.device.Size;
 import com.genymobile.transfer.video.ScreenEncoder;
-import com.genymobile.transfer.video.VideoConnection;
+import com.genymobile.transfer.video.VideoServer;
 
 import java.io.IOException;
 
@@ -31,16 +30,16 @@ public final class Server {
         int pid = android.os.Process.myPid();
         System.out.println("PID: " + pid);
         // start first video socket
-        VideoConnection connection = new VideoConnection(device, options);
+        VideoServer connection = new VideoServer(device, options);
         ScreenEncoder screenEncoder = new ScreenEncoder();
         // asynchronous
         // start second socket > control socket
-        startEventController(device, options, connection);
+//        startEventController(device, options, connection);
         screenEncoder.streamScreen(options, connection.getFileDescriptor(), connection.getOutputStream());
 
     }
 
-    private static void startEventController(final Device device, Options options, final VideoConnection connection) {
+    private static void startEventController(final Device device, Options options, final VideoServer connection) {
         new Thread(new Runnable() {
             @Override
             public void run() {

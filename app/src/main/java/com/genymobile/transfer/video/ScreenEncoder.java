@@ -18,6 +18,7 @@ import java.io.DataOutputStream;
 import java.io.FileDescriptor;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -76,14 +77,17 @@ public class ScreenEncoder implements Device.RotationListener {
                 continue;
             }
             int size = bufferInfo.size;
-            header.clear();
-            header.putInt(size);
-            header.putLong(bufferInfo.presentationTimeUs);
-            header.position(0);
-            IO.writeFully(fileDescriptor, header);
+//            header.clear();
+//            header.putInt(size);
+//            header.putLong(bufferInfo.presentationTimeUs);
+//            header.position(0);
+//            IO.writeFully(fileDescriptor, header);
             IO.writeFully(fileDescriptor, codec.getOutputBuffer(outputBufferId));
             //codec复用技术，要把数据还给它
             codec.releaseOutputBuffer(outputBufferId, false);
+
+            System.out.println(size);
+
         }
     }
 }
