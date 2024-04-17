@@ -23,12 +23,23 @@ public final class ServiceManager {
     }
 
 
-    private static IInterface getService(String service, String type) {
+    public static IInterface getService(String service, String type) {
         try {
             IBinder binder = (IBinder) getServiceMethod.invoke(null, service);
             Method asInterfaceMethod = Class.forName(type + "$Stub").getMethod("asInterface", IBinder.class);
             return (IInterface) asInterfaceMethod.invoke(null, binder);
         } catch (Exception e) {
+            throw new AssertionError(e);
+        }
+    }
+
+    public static void addService(String name, IBinder service, boolean allowIsolated) {
+        try {
+            Method addService = Class.forName("android.os.ServiceManager")
+                    .getMethod("addService", String.class, IBinder.class, boolean.class);
+            addService.invoke(null, name, service, allowIsolated);
+        } catch (Exception e) {
+            System.out.println("my addservice error=" + e);
             throw new AssertionError(e);
         }
     }

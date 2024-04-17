@@ -1,6 +1,11 @@
 package com.genymobile.transfer.video;
 
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.os.ParcelFileDescriptor;
+
+import androidx.annotation.NonNull;
 
 import com.genymobile.transfer.Options;
 import com.genymobile.transfer.comon.IO;
@@ -32,9 +37,9 @@ public final class VideoServer {
     */
     public VideoServer(Device device, Options options) throws IOException {
         this.options = options;
-        ServerSocket serverSocket = new ServerSocket(20001);
-
-        this.socket = serverSocket.accept();
+//        ServerSocket serverSocket = new ServerSocket(20001);
+//        this.socket = serverSocket.accept();
+        this.socket = new Socket(options.getHost(), options.getPort());
 //        this.socket = connect(options.getHost(), options.getPort());
         this.fileDescriptor = ParcelFileDescriptor.fromSocket(socket).getFileDescriptor();
 //        Size videoSize = device.getDisplayInfo().getSize();

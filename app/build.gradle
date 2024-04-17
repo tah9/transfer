@@ -1,5 +1,6 @@
 plugins {
     id 'com.android.application'
+//    id 'org.jetbrains.kotlin.android'
 }
 
 android {
@@ -8,13 +9,16 @@ android {
 
     defaultConfig {
         applicationId "com.genymobile.transfer"
-        minSdk 22
+        minSdk 26
         targetSdk 34
         versionCode 1
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
+//    kotlinOptions {
+//        jvmTarget = "1.8"
+//    }
 
     buildTypes {
         release {
@@ -24,13 +28,13 @@ android {
     }
     buildFeatures {
         buildConfig = true
+        aidl = true
+        compose = true
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-    compileSdkVersion 34
-    buildToolsVersion '34.0.0'
 
 
 }
@@ -41,25 +45,29 @@ task createJar(type: Jar) {
 }
 
 
-
-
 // 将复制JAR文件的任务与构建任务关联
 build.dependsOn(createJar)
 
-task makeDex(type: Exec, dependsOn: [createJar]){
-    def a1, a2
-    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
-        a1 = 'cmd'
-        a2 = '/c'
-    } else {
-        a1 = 'sh'
-        a2 = '-c'
-    }
-    def list = []
-    list.add(a1)
-    list.add(a2)
-    list.add("/home/mo/dependencies/Android/Sdk/build-tools/30.0.3/d8 --output ./ $projectDir/build/libs/finish.jar")
-    commandLine list
+
+//这是打包dex的最后一步，使用d8将jar转为dex
+task makeDex(type: Exec, dependsOn: [createJar]) {
+//    list.add("/home/mo/dependencies/Android/Sdk/build-tools/30.0.3/d8 --output /home/mo/AsfpProjects/transferclient/app/src/main/assets $projectDir/build/libs/finish.jar")
+//    list.add("cp /home/mo/AsfpProjects/transfer/app/classes.dex /home/mo/AsfpProjects/transferclient/app/src/main/assets/dex.bak")
+
+
+    commandLine "/home/mo/dependencies/Android/Sdk/build-tools/30.0.3/d8 --output ./ /home/mo/AsfpProjects/transfer/app/build/libs/finish.jar"
+
+
+    //将dex文件复制到app内
+//    def list_copy = []
+//    list_copy.add(a1)
+//    list_copy.add(a2)
+//    list_copy.add()
+//    commandLine list_copy
+
+}
+task copyDex(type: Exec) {
+    commandLine "sh -c cp /home/mo/AsfpProjects/transfer/app/classes.dex /home/mo/AsfpProjects/transferclient/app/src/main/assets/dex.bak"
 }
 
 dependencies {

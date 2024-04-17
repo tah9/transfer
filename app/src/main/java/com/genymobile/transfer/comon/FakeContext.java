@@ -3,12 +3,14 @@ package com.genymobile.transfer.comon;
 import android.annotation.TargetApi;
 import android.content.AttributionSource;
 import android.content.MutableContextWrapper;
+import android.content.res.Resources;
 import android.os.Build;
 import android.os.Process;
 
 public final class FakeContext extends MutableContextWrapper {
 
-    public static final String PACKAGE_NAME = "com.android.shell";
+//    public static final String PACKAGE_NAME = "com.android.shell";
+    public static final String PACKAGE_NAME = "com.genymobile.transfer";
     public static final int ROOT_UID = 0; // Like android.os.Process.ROOT_UID, but before API 29
 
     private static final FakeContext INSTANCE = new FakeContext();
@@ -44,4 +46,6 @@ public final class FakeContext extends MutableContextWrapper {
     public int getDeviceId() {
         return 0;
     }
+
+
 }

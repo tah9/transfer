@@ -9,6 +9,7 @@ import android.os.IBinder;
 import android.os.SystemClock;
 //import android.view.IRotationWatcher;
 //import android.view.IDisplayFoldListener;
+import android.view.Display;
 import android.view.InputDevice;
 import android.view.InputEvent;
 import android.view.KeyCharacterMap;
@@ -62,7 +63,7 @@ public class Device {
     /**
      * Logical display identifier
      */
-    private int displayId=0;
+    public int displayId = 0;
 
     /**
      * The surface flinger layer stack associated with this logical display
@@ -209,16 +210,34 @@ public class Device {
 //    }
 
     public static boolean injectEvent(InputEvent inputEvent, int displayId, int injectMode) {
-        if (!supportsInputEvents(displayId)) {
-            throw new AssertionError("Could not inject input event if !supportsInputEvents()");
-        }
 
-        if (displayId != 0 && !InputManager.setDisplayId(inputEvent, displayId)) {
-            return false;
+        try {
+            if (displayId != Display.DEFAULT_DISPLAY)
+                InputManager.setDisplayId(inputEvent, displayId);
+            InputManager.injectInputEvent(inputEvent, InputManager.INJECT_INPUT_EVENT_MODE_ASYNC);
+        } catch (Exception e) {
+            System.out.println(e.toString());
         }
-
-        return ServiceManager.getInputManager().injectInputEvent(inputEvent, injectMode);
+        return true;
+//        if (!supportsInputEvents(displayId)) {
+//            throw new AssertionError("Could not inject input event if !supportsInputEvents()");
+//        }
+//
+//        if (displayId != 0 && !InputManager.setDisplayId(inputEvent, displayId)) {
+//            return false;
+//        }
+//
+//        return ServiceManager.getInputManager().injectInputEvent(inputEvent, injectMode);
     }
+
+//    private static void injectEvent(InputEvent inputEvent) {
+//        try {
+//            if (displayId != Display.DEFAULT_DISPLAY) InputManager.setDisplayId(inputEvent, displayId);
+//            InputManager.injectInputEvent(inputEvent, InputManager.INJECT_INPUT_EVENT_MODE_ASYNC);
+//        } catch (Exception e) {
+//            System.out.println(e.toString());
+//        }
+//    }
 
     public boolean injectEvent(InputEvent event, int injectMode) {
         System.out.println(event);

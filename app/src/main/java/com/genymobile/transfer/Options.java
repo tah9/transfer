@@ -2,15 +2,13 @@ package com.genymobile.transfer;
 
 import android.graphics.Rect;
 
-import androidx.annotation.NonNull;
-
 import java.lang.reflect.Field;
 
 
 public class Options {
 
     private int repeatFrame = 100_000;//us
-    private int dpi = 401;
+    private int dpi = 420;
     private String host = "10.0.2.2";
     private int port = 20002;
     private int targetDisplayId = 0;
@@ -18,8 +16,8 @@ public class Options {
     private int fps = 60;
     private int refreshInterval = 3;
     private int layerStack = 0;
-    private String displayName = "oi";
-    private boolean mirror = true;//true mirror,false expand
+    private String displayName = "_dis_";
+    private boolean mirror = false;//true mirror,false expand
     private Rect displayRegion;
     private Rect cropRegion;
     private int orientation = 0;
@@ -33,7 +31,11 @@ public class Options {
         MaxFps = maxFps;
     }
 
-    public void setOptionsFromString(Options options, String input) {
+
+
+    //bitRate=8000000,host=10.0.2.2,port=20002,refreshInterval=10,repeatFrame=100000,fps=60,MaxFps=60,displayRegion=0-0-2400-1080
+    public static Options createOptionsFromStr(String input) {
+        Options options = new Options();
         String[] keyValuePairs = input.split(",");
         for (String pair : keyValuePairs) {
             String[] keyValue = pair.split("=");
@@ -51,7 +53,8 @@ public class Options {
                         field.setBoolean(options, Boolean.parseBoolean(value));
                     } else if (field.getType().equals(Rect.class)) {
                         // 0 0 1080 2400
-                        String[] s = value.split(" ");
+                        System.out.println("rect "+value);
+                        String[] s = value.split("-");
                         field.set(options, new Rect(Integer.parseInt(s[0]),
                                 Integer.parseInt(s[1]),
                                 Integer.parseInt(s[2]),
@@ -63,6 +66,8 @@ public class Options {
                 }
             }
         }
+        System.out.println(options.string());
+        return options;
     }
 
     public String string() {

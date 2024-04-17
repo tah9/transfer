@@ -7,6 +7,7 @@ import android.hardware.display.VirtualDisplay;
 import android.os.Build;
 import android.os.IInterface;
 import android.view.Display;
+import android.view.SurfaceControl;
 
 import com.genymobile.transfer.comon.Command;
 import com.genymobile.transfer.comon.FakeContext;
@@ -15,6 +16,7 @@ import com.genymobile.transfer.device.DisplayInfo;
 import com.genymobile.transfer.device.Size;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -92,13 +94,14 @@ public final class DisplayManager {
             throw new AssertionError(e);
         }
     }
+
     private static final int VIRTUAL_DISPLAY_FLAG_DESTROY_CONTENT_ON_REMOVAL = 1 << 8;
     private static final int VIRTUAL_DISPLAY_FLAG_SHOULD_SHOW_SYSTEM_DECORATIONS = 1 << 9;
     private static final int VIRTUAL_DISPLAY_FLAG_TRUSTED = 1 << 10;
     private static final int VIRTUAL_DISPLAY_FLAG_OWN_DISPLAY_GROUP = 1 << 11;
     private static final int VIRTUAL_DISPLAY_FLAG_ALWAYS_UNLOCKED = 1 << 12;
 
-    //创建虚拟显示器要解耦合提取出来，创建后返回显示器id
+
     @SuppressLint("WrongConstant")
     public static VirtualDisplay createVirtualDisplay(String name, int w, int h, int dpi) {
         try {
@@ -114,5 +117,17 @@ public final class DisplayManager {
             e.printStackTrace();
         }
         return null;
+    }
+
+
+
+
+    public static android.hardware.display.DisplayManager getDisplayManager() {
+        try {
+            return android.hardware.display.DisplayManager.class.getDeclaredConstructor(Context.class)
+                    .newInstance(FakeContext.get());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

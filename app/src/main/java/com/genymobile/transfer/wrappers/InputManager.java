@@ -15,8 +15,8 @@ public final class InputManager {
     public static final int INJECT_INPUT_EVENT_MODE_WAIT_FOR_RESULT = 1;
     public static final int INJECT_INPUT_EVENT_MODE_WAIT_FOR_FINISH = 2;
     private static Method setActionButtonMethod;
-    private final IInterface manager;
-    private final Method injectInputEventMethod;
+    private static IInterface manager;
+    public static Method injectInputEventMethod ;
     private static Method setDisplayIdMethod;
     public InputManager(IInterface manager) {
         this.manager = manager;
@@ -27,7 +27,7 @@ public final class InputManager {
         }
     }
 
-    public boolean injectInputEvent(InputEvent inputEvent, int mode) {
+    public static boolean injectInputEvent(InputEvent inputEvent, int mode) {
         try {
             return (Boolean) injectInputEventMethod.invoke(manager, inputEvent, mode);
         } catch (InvocationTargetException | IllegalAccessException e) {

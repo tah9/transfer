@@ -2,6 +2,7 @@ package com.genymobile.transfer.control;
 
 import android.os.Build;
 import android.os.SystemClock;
+import android.util.Log;
 import android.view.InputDevice;
 import android.view.InputEvent;
 import android.view.KeyCharacterMap;
@@ -14,10 +15,16 @@ import com.genymobile.transfer.comon.Ln;
 import com.genymobile.transfer.device.Device;
 import com.genymobile.transfer.wrappers.InputManager;
 
+import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.Socket;
+import java.util.HashSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class EventController {
@@ -35,6 +42,46 @@ public class EventController {
 
     public EventController(Device device, Options options) {
         this.device = device;
+
+        try {
+            Process process = Runtime.getRuntime().exec("dumpsys display | grep mDisplayId");
+            InputStream inputStream = process.getInputStream();
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+
+            String line;
+
+            StringBuffer buffer = new StringBuffer();
+            while ((line = reader.readLine()) != null) {
+                buffer.append(line);
+            }
+            HashSet<String> displayIds = new HashSet<>();
+            Pattern pattern = Pattern.compile("mDisplayId=(\\d+)");
+            Matcher matcher = pattern.matcher(buffer.toString());
+
+            while (matcher.find()) {
+                displayIds.add(matcher.group(1));
+            }
+
+            int tid = 0;
+            for (String id : displayIds) {
+                System.out.println("displayId+"+id);
+                tid = Math.max(tid,Integer.parseInt(id));
+            }
+            options.setTargetDisplayId(tid);
+
+
+
+            Runtime.getRuntime().exec("am start -n bin.mt.plus/.Main --display "+tid);
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+
+        this.device.setDisplayId(options.getTargetDisplayId());
+        System.out.println("EventController: touch displayId "+options.getTargetDisplayId());
+        System.out.println("EventController: touch displayId "+device.displayId);
         this.options = options;
         initPointers();
         try {
@@ -42,7 +89,6 @@ public class EventController {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
     }
 
     private void initPointers() {
@@ -118,7 +164,7 @@ public class EventController {
     public void control() throws IOException {
         // on start, turn screen on
         turnScreenOn();
-        DataOutputStream oos = new DataOutputStream(controlSocket.getOutputStream());
+//        DataOutputStream oos = new DataOutputStream(controlSocket.getOutputStream());
         DataInputStream ois = new DataInputStream(controlSocket.getInputStream());
 //
         try {
@@ -131,15 +177,10 @@ public class EventController {
                 int downTime = 0;
                 int action = 0;
                 int count = 0;
-                try {
-                    downTime = ois.readInt();
-                    action = ois.readInt();
-                    count = ois.readInt();
-                    System.out.println("pointerCounter " + count);
-
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+                downTime = ois.readInt();
+                action = ois.readInt();
+                count = ois.readInt();
+                System.out.println("pointerCounter " + count);
 
 
                 try {
@@ -164,10 +205,13 @@ public class EventController {
                 }
 
                 try {
-                    MotionEvent event = MotionEvent.obtain(downTime, SystemClock.uptimeMillis(),
-                            action, count, pointerProperties, pointerCoords,
-                            0, buttonState, 0, 0, DEFAULT_DEVICE_ID,
-                            0, source, 0);
+                    MotionEvent event = null;
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                        event = MotionEvent.obtain(downTime, SystemClock.uptimeMillis(),
+                                action, count, pointerProperties, pointerCoords,
+                                0, buttonState, 0, 0, DEFAULT_DEVICE_ID,
+                                0, source, device.displayId,0, MotionEvent.CLASSIFICATION_NONE);
+                    }
                     device.injectEvent(event, Device.INJECT_MODE_ASYNC);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
