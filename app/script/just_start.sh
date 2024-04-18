@@ -18,9 +18,8 @@ targetFold="/data/local/tmp/transfer.jar"
 #adb -s emulator-5556 forward tcp:20002 tcp:20001
 
 # 将dex文件推入设备并改后缀为jar
-adb -s emulator-5554 push ../finish.dex ${targetFold}
-adb -s emulator-5554 shell su -c CLASSPATH=${targetFold} app_process / com.genymobile.transfer.Server \
- bitRate=8000000,host=10.0.2.2,port=20002,refreshInterval=10,repeatFrame=100000,fps=60,MaxFps=60,displayRegion=0-0-2400-1080
+adb -s a964518d push ../finish.dex ${targetFold}
+adb -s a964518d shell CLASSPATH=${targetFold} app_process / com.genymobile.transfer.Server
 # 0-0-1080-2326
 # 注意宽高要传入2的倍数
 # pc emulator is server

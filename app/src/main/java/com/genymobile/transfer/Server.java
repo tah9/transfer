@@ -103,24 +103,10 @@ public final class Server {
         });
 
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    LocalServerSocket localServerSocket = new LocalServerSocket("123123123");
-                    LocalSocket accept = localServerSocket.accept();
-                    DataInputStream dataInputStream = new DataInputStream(accept.getInputStream());
-                    System.out.println("readUTF "+dataInputStream.readUTF());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }).start();
-
 
         TransferService transferService = new TransferService();
-        ServiceManager.addService("TransferService", transferService.onBind(null), true);
-        System.out.println("222TransferService 服务添加成功");
+//        ServiceManager.addService("TransferService", transferService.onBind(null), true);
+//        System.out.println("333TransferService 服务添加成功");
 
 
 //        IInterface calculateService = ServiceManager.getService("CalculateService", "com.genymobile.transfer.ICalculateInterface");

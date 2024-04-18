@@ -24,12 +24,13 @@ public class ScreenConfigure {
                     options.getDisplayRegion(), options.getCropRegion(), options.getLayerStack());
             return 0;
         } else {
-            VirtualDisplay virtualScrcpy = DisplayManager.createVirtualDisplay(options.getDisplayName(),
+            VirtualDisplay virtualDisplay = DisplayManager.createVirtualDisplay(options.getDisplayName(),
                     options.getDisplayRegion().width(),
                     options.getDisplayRegion().height(),
                     options.getDpi());
-            virtualScrcpy.setSurface(surface);
-            return virtualScrcpy.getDisplay().getDisplayId();
+            System.out.println("virtualDisplay="+(virtualDisplay==null));
+            virtualDisplay.setSurface(surface);
+            return virtualDisplay.getDisplay().getDisplayId();
         }
     }
 }

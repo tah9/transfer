@@ -68,7 +68,10 @@ public class Options {
                 }
             }
         }
-        System.out.println(options.string());
+        if (options.cropRegion==null){
+            options.setCropRegion(options.getDisplayRegion());
+        }
+        System.out.println("createOptionsFromStr="+options.string());
         return options;
     }
 

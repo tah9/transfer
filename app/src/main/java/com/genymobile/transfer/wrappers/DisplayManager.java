@@ -114,9 +114,9 @@ public final class DisplayManager {
             }
             return displayManager.createVirtualDisplay(name, w, h, dpi, null, flags);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("createVirtualDisplay error="+e);
+            return null;
         }
-        return null;
     }
 
 
