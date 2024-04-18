@@ -32,7 +32,6 @@ public class Options {
     }
 
 
-
     //bitRate=8000000,host=10.0.2.2,port=20002,refreshInterval=10,repeatFrame=100000,fps=60,MaxFps=60,displayRegion=0-0-2400-1080
     public static Options createOptionsFromStr(String input) {
         Options options = new Options();
@@ -52,13 +51,16 @@ public class Options {
                     } else if (field.getType().equals(boolean.class)) {
                         field.setBoolean(options, Boolean.parseBoolean(value));
                     } else if (field.getType().equals(Rect.class)) {
-                        // 0 0 1080 2400
-                        System.out.println("rect "+value);
+                        //displayRegion=0-0-2400-1080
+                        //注意,需要确保宽高不能为奇数
+                        System.out.println("rect " + value);
                         String[] s = value.split("-");
-                        field.set(options, new Rect(Integer.parseInt(s[0]),
+                        field.set(options, new Rect(
+                                Integer.parseInt(s[0]),
                                 Integer.parseInt(s[1]),
-                                Integer.parseInt(s[2]),
-                                Integer.parseInt(s[3])));
+                                Integer.parseInt(s[2]) % 2 != 0 ? Integer.parseInt(s[2]) - 1 : Integer.parseInt(s[2]),
+                                Integer.parseInt(s[3]) % 2 != 0 ? Integer.parseInt(s[3]) - 1 : Integer.parseInt(s[3])
+                        ));
                     }
                     // 可以根据需要添加其他数据类型的处理
                 } catch (NoSuchFieldException | IllegalAccessException e) {

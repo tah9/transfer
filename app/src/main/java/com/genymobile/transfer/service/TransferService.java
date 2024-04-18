@@ -34,9 +34,11 @@ public class TransferService extends Service {
             String instantName = "transfer@" + System.currentTimeMillis();
             System.out.println("appRunOnTargetDisplay:instantName=" + instantName + ",packageName=" + packageName + ",optionsStr=" + optionsStr);
             Options options = Options.createOptionsFromStr(optionsStr);
+
             try {
                 //本地套接字创建完毕即可通知交互程序转发端口
                 LocalServerSocket localServerSocket = new LocalServerSocket(instantName);
+                System.out.println("本地套接字创建完成 "+instantName);
                 new Thread(new Runnable() {
                     @Override
                     public void run() {

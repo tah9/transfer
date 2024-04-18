@@ -2,6 +2,8 @@ package com.genymobile.transfer;
 
 import android.media.MediaCodec;
 import android.media.MediaFormat;
+import android.net.LocalServerSocket;
+import android.net.LocalSocket;
 import android.os.Looper;
 import android.view.Display;
 import android.view.Surface;
@@ -18,6 +20,7 @@ import com.genymobile.transfer.video.ScreenEncoder;
 import com.genymobile.transfer.video.VideoServer;
 import com.genymobile.transfer.wrappers.ServiceManager;
 
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
 
@@ -100,9 +103,24 @@ public final class Server {
         });
 
 
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    LocalServerSocket localServerSocket = new LocalServerSocket("123123123");
+                    LocalSocket accept = localServerSocket.accept();
+                    DataInputStream dataInputStream = new DataInputStream(accept.getInputStream());
+                    System.out.println("readUTF "+dataInputStream.readUTF());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }).start();
+
+
         TransferService transferService = new TransferService();
         ServiceManager.addService("TransferService", transferService.onBind(null), true);
-        System.out.println("TransferService 服务添加成功");
+        System.out.println("222TransferService 服务添加成功");
 
 
 //        IInterface calculateService = ServiceManager.getService("CalculateService", "com.genymobile.transfer.ICalculateInterface");
@@ -115,38 +133,38 @@ public final class Server {
 
         int pid = android.os.Process.myPid();
         System.out.println("jar运行成功 PID=" + pid);
-        try {
-            // 获取DisplayManagerGlobal类的Class对象
-            Class<?> displayManagerGlobalClass = Class.forName("android.hardware.display.DisplayManagerGlobal");
-
-// 获取getInstance()方法
-            Method getInstanceMethod = displayManagerGlobalClass.getMethod("getInstance");
-
-// 调用getInstance()方法获取DisplayManagerGlobal的实例
-            Object displayManagerGlobalInstance = getInstanceMethod.invoke(null);
-
-// 确保getInstance()返回的对象类型是你期望的类，如果不是，请替换为正确的类型
-            // 获取getMethod方法（无参版本）
-            Method method = displayManagerGlobalClass.getMethod("getDisplayIds", boolean.class);
-
-// 调用无参方法
-            int[] displayIds = (int[]) method.invoke(displayManagerGlobalInstance, false);
-            System.out.println("display size=" + displayIds.length);
-            // 获取getRealDisplay()方法
-            Method getRealDisplayMethod = displayManagerGlobalClass.getMethod("getRealDisplay", int.class);
-            for (int displayId : displayIds) {
-                if (displayId == 0) continue;
-                System.out.println("displayId=" + displayId);
-                // 调用getRealDisplay()方法
-                Display display = (Display) getRealDisplayMethod.invoke(displayManagerGlobalInstance, displayId);
-                System.out.println(display.toString());
-            }
-            // 现在displayIds包含了所需的结果
-
-        } catch (Exception e) {
-            System.out.println(e.toString());
-            throw new RuntimeException(e);
-        }
+//        try {
+//            // 获取DisplayManagerGlobal类的Class对象
+//            Class<?> displayManagerGlobalClass = Class.forName("android.hardware.display.DisplayManagerGlobal");
+//
+//// 获取getInstance()方法
+//            Method getInstanceMethod = displayManagerGlobalClass.getMethod("getInstance");
+//
+//// 调用getInstance()方法获取DisplayManagerGlobal的实例
+//            Object displayManagerGlobalInstance = getInstanceMethod.invoke(null);
+//
+//// 确保getInstance()返回的对象类型是你期望的类，如果不是，请替换为正确的类型
+//            // 获取getMethod方法（无参版本）
+//            Method method = displayManagerGlobalClass.getMethod("getDisplayIds", boolean.class);
+//
+//// 调用无参方法
+//            int[] displayIds = (int[]) method.invoke(displayManagerGlobalInstance, false);
+//            System.out.println("display size=" + displayIds.length);
+//            // 获取getRealDisplay()方法
+//            Method getRealDisplayMethod = displayManagerGlobalClass.getMethod("getRealDisplay", int.class);
+//            for (int displayId : displayIds) {
+//                if (displayId == 0) continue;
+//                System.out.println("displayId=" + displayId);
+//                // 调用getRealDisplay()方法
+//                Display display = (Display) getRealDisplayMethod.invoke(displayManagerGlobalInstance, displayId);
+//                System.out.println(display.toString());
+//            }
+//            // 现在displayIds包含了所需的结果
+//
+//        } catch (Exception e) {
+//            System.out.println(e.toString());
+//            throw new RuntimeException(e);
+//        }
 
 
         Looper.prepareMainLooper();
