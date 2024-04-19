@@ -24,13 +24,26 @@ public class ScreenConfigure {
                     options.getDisplayRegion(), options.getCropRegion(), options.getLayerStack());
             return 0;
         } else {
-            VirtualDisplay virtualDisplay = DisplayManager.createVirtualDisplay(options.getDisplayName(),
-                    options.getDisplayRegion().width(),
-                    options.getDisplayRegion().height(),
-                    options.getDpi());
-            System.out.println("virtualDisplay="+(virtualDisplay==null));
-            virtualDisplay.setSurface(surface);
-            return virtualDisplay.getDisplay().getDisplayId();
+            try {
+//                VirtualDisplay virtualDisplay = DisplayManager.create().createVirtualDisplay(options.getDisplayName(),
+//                        options.getDisplayRegion().width(),
+//                        options.getDisplayRegion().height(),
+//                        options.getDpi(),
+//                        surface);
+
+                VirtualDisplay virtualDisplay = DisplayManager.createVirtualDisplay(options.getDisplayName(),
+                        options.getDisplayRegion().width(),
+                        options.getDisplayRegion().height(),
+                        options.getDpi());
+
+                virtualDisplay.setSurface(surface);
+                System.out.println("virtualDisplay=" + (virtualDisplay == null));
+
+                return virtualDisplay.getDisplay().getDisplayId();
+            } catch (Exception e) {
+                System.out.println("createVirtualDisplay error=" + e);
+            }
         }
+        return -1;
     }
 }

@@ -10,7 +10,9 @@ import android.os.Process;
 public final class FakeContext extends MutableContextWrapper {
 
 //    public static final String PACKAGE_NAME = "com.android.shell";
-    public static final String PACKAGE_NAME = "com.genymobile.transfer";
+    public static final String PACKAGE_NAME = "com.android.shell";
+//    public static final String PACKAGE_NAME = "com.genymobile.transferclient";
+//    public static final String PACKAGE_NAME = "0";
     public static final int ROOT_UID = 0; // Like android.os.Process.ROOT_UID, but before API 29
 
     private static final FakeContext INSTANCE = new FakeContext();
@@ -46,6 +48,7 @@ public final class FakeContext extends MutableContextWrapper {
     public int getDeviceId() {
         return 0;
     }
+
 
 
 }

@@ -29,7 +29,7 @@ public class EncodeConfigure {
         // <https://github.com/Genymobile/scrcpy/issues/488#issuecomment-567321437>
         format.setFloat("max-fps-to-encoder", options.getMaxFps());
 
-        System.out.println(format);
+        System.out.println("EncodeConfigure createFormat=" + format);
         return format;
     }
 }
