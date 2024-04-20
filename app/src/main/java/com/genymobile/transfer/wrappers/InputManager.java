@@ -27,7 +27,8 @@ public final class InputManager {
         }
     }
 
-    public static boolean injectInputEvent(InputEvent inputEvent, int mode) {
+    public  boolean injectInputEvent(InputEvent inputEvent, int mode) {
+        System.out.println("inputManager injectInputEvent");
         try {
             return (Boolean) injectInputEventMethod.invoke(manager, inputEvent, mode);
         } catch (InvocationTargetException | IllegalAccessException e) {

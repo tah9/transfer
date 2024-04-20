@@ -14,7 +14,7 @@ public class Options {
     private int targetDisplayId = 0;
     private int bitRate = 8_000_000;
     private int fps = 60;
-    private int refreshInterval = 3;
+    private int refreshInterval = 10;
     private int layerStack = 0;
     private String displayName = "_dis_";
     private boolean mirror = false;//true mirror,false expand
@@ -51,7 +51,7 @@ public class Options {
                     } else if (field.getType().equals(boolean.class)) {
                         field.setBoolean(options, Boolean.parseBoolean(value));
                     } else if (field.getType().equals(Rect.class)) {
-                        //displayRegion=0-0-2400-1080
+                        //displayRegion=0-0-width-height
                         //注意,需要确保宽高不能为奇数
                         System.out.println("rect " + value);
                         String[] s = value.split("-");

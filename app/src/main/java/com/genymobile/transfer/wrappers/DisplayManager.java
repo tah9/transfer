@@ -101,7 +101,10 @@ public final class DisplayManager {
             int rotation = cls.getDeclaredField("rotation").getInt(displayInfo);
             int layerStack = cls.getDeclaredField("layerStack").getInt(displayInfo);
             int flags = cls.getDeclaredField("flags").getInt(displayInfo);
-            return new DisplayInfo(displayId, new Size(width, height), rotation, layerStack, flags);
+            int dpi = cls.getDeclaredField("logicalDensityDpi").getInt(displayInfo);
+            DisplayInfo dis = new DisplayInfo(displayId, new Size(width, height), rotation, layerStack, flags);
+            dis.setDpi(dpi);
+            return dis;
         } catch (ReflectiveOperationException e) {
             throw new AssertionError(e);
         }

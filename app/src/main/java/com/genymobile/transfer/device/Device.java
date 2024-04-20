@@ -68,7 +68,7 @@ public class Device {
     /**
      * The surface flinger layer stack associated with this logical display
      */
-    private final int layerStack;
+//    private final int layerStack;
 
 //    private final boolean supportsInputEvents;
 
@@ -83,11 +83,12 @@ public class Device {
     }
 
     public Device(Options options) {
-        this.displayInfo = ServiceManager.getDisplayManager().getDisplayInfo(0);
+        setDisplayId(options.getTargetDisplayId());
+//        this.displayInfo = ServiceManager.getDisplayManager().getDisplayInfo(0);
 //        lockVideoOrientation = options.getLockVideoOrientation();
 
 //        screenInfo = ScreenInfo.computeScreenInfo(displayInfo.getRotation(), deviceSize, crop, maxSize, lockVideoOrientation);
-        layerStack = displayInfo.getLayerStack();
+//        layerStack = displayInfo.getLayerStack();
 
 //        ServiceManager.getWindowManager().registerRotationWatcher(new IRotationWatcher.Stub() {
 //            @Override
@@ -168,34 +169,10 @@ public class Device {
     }
 
 
-    public int getLayerStack() {
-        return layerStack;
-    }
-
-//    public Point getPhysicalPoint(Position position) {
-//        // it hides the field on purpose, to read it with a lock
-//        @SuppressWarnings("checkstyle:HiddenField")
-//        ScreenInfo screenInfo = getScreenInfo(); // read with synchronization
-//
-//        // ignore the locked video orientation, the events will apply in coordinates considered in the physical device orientation
-//        Size unlockedVideoSize = screenInfo.getUnlockedVideoSize();
-//
-//        int reverseVideoRotation = screenInfo.getReverseVideoRotation();
-//        // reverse the video rotation to apply the events
-//        Position devicePosition = position.rotate(reverseVideoRotation);
-//
-//        Size clientVideoSize = devicePosition.getScreenSize();
-//        if (!unlockedVideoSize.equals(clientVideoSize)) {
-//            // The client sends a click relative to a video with wrong dimensions,
-//            // the device may have been rotated since the event was generated, so ignore the event
-//            return null;
-//        }
-//        Rect contentRect = screenInfo.getContentRect();
-//        Point point = devicePosition.getPoint();
-//        int convertedX = contentRect.left + point.getX() * contentRect.width() / unlockedVideoSize.getWidth();
-//        int convertedY = contentRect.top + point.getY() * contentRect.height() / unlockedVideoSize.getHeight();
-//        return new Point(convertedX, convertedY);
+//    public int getLayerStack() {
+//        return layerStack;
 //    }
+
 
     public static String getDeviceName() {
         return Build.MODEL;
@@ -209,60 +186,18 @@ public class Device {
 //        return supportsInputEvents;
 //    }
 
-    public static boolean injectEvent(InputEvent inputEvent, int displayId, int injectMode) {
-
+    public static boolean injectEvent(InputEvent inputEvent, int displayId) {
+        System.out.println(inputEvent);
         try {
-            if (displayId != Display.DEFAULT_DISPLAY)
-                InputManager.setDisplayId(inputEvent, displayId);
-            InputManager.injectInputEvent(inputEvent, InputManager.INJECT_INPUT_EVENT_MODE_ASYNC);
+//            if (displayId != Display.DEFAULT_DISPLAY)
+//                InputManager.setDisplayId(inputEvent, displayId);
+//            ServiceManager.getInputManager().injectInputEvent(inputEvent, InputManager.INJECT_INPUT_EVENT_MODE_ASYNC);
         } catch (Exception e) {
             System.out.println(e.toString());
         }
         return true;
-//        if (!supportsInputEvents(displayId)) {
-//            throw new AssertionError("Could not inject input event if !supportsInputEvents()");
-//        }
-//
-//        if (displayId != 0 && !InputManager.setDisplayId(inputEvent, displayId)) {
-//            return false;
-//        }
-//
-//        return ServiceManager.getInputManager().injectInputEvent(inputEvent, injectMode);
     }
 
-//    private static void injectEvent(InputEvent inputEvent) {
-//        try {
-//            if (displayId != Display.DEFAULT_DISPLAY) InputManager.setDisplayId(inputEvent, displayId);
-//            InputManager.injectInputEvent(inputEvent, InputManager.INJECT_INPUT_EVENT_MODE_ASYNC);
-//        } catch (Exception e) {
-//            System.out.println(e.toString());
-//        }
-//    }
-
-    public boolean injectEvent(InputEvent event, int injectMode) {
-        System.out.println(event);
-        return injectEvent(event, displayId, injectMode);
-    }
-
-    public static boolean injectKeyEvent(int action, int keyCode, int repeat, int metaState, int displayId, int injectMode) {
-        long now = SystemClock.uptimeMillis();
-        KeyEvent event = new KeyEvent(now, now, action, keyCode, repeat, metaState, KeyCharacterMap.VIRTUAL_KEYBOARD, 0, 0,
-                InputDevice.SOURCE_KEYBOARD);
-        return injectEvent(event, displayId, injectMode);
-    }
-
-    public boolean injectKeyEvent(int action, int keyCode, int repeat, int metaState, int injectMode) {
-        return injectKeyEvent(action, keyCode, repeat, metaState, displayId, injectMode);
-    }
-
-    public static boolean pressReleaseKeycode(int keyCode, int displayId, int injectMode) {
-        return injectKeyEvent(KeyEvent.ACTION_DOWN, keyCode, 0, 0, displayId, injectMode)
-                && injectKeyEvent(KeyEvent.ACTION_UP, keyCode, 0, 0, displayId, injectMode);
-    }
-
-    public boolean pressReleaseKeycode(int keyCode, int injectMode) {
-        return pressReleaseKeycode(keyCode, displayId, injectMode);
-    }
 
     public static boolean isScreenOn() {
         return ServiceManager.getPowerManager().isScreenOn();
@@ -354,12 +289,12 @@ public class Device {
         return SurfaceControl.setDisplayPowerMode(d, mode);
     }
 
-    public static boolean powerOffScreen(int displayId) {
-        if (!isScreenOn()) {
-            return true;
-        }
-        return pressReleaseKeycode(KeyEvent.KEYCODE_POWER, displayId, Device.INJECT_MODE_ASYNC);
-    }
+//    public static boolean powerOffScreen(int displayId) {
+//        if (!isScreenOn()) {
+//            return true;
+//        }
+//        return pressReleaseKeycode(KeyEvent.KEYCODE_POWER, displayId, Device.INJECT_MODE_ASYNC);
+//    }
 
     /**
      * Disable auto-rotation (if enabled), set the screen rotation and re-enable auto-rotation (if it was enabled).
