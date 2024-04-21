@@ -1,4 +1,4 @@
-package com.genymobile.transfer.service;
+package com.genymobile.transfer.service.thread;
 
 import android.media.MediaCodec;
 import android.media.MediaFormat;

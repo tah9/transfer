@@ -71,7 +71,7 @@ public class Options {
         if (options.cropRegion==null){
             options.setCropRegion(options.getDisplayRegion());
         }
-        System.out.println("createOptionsFromStr="+options.string());
+        System.out.println("Options class : createOptionsFromStr="+options.string());
         return options;
     }
 
