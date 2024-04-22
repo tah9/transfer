@@ -4,100 +4,64 @@ import android.view.MotionEvent;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
-public class PointersState {
+public final class PointersState {
 
     public static final int MAX_POINTERS = 10;
 
-    private final List<Pointer> pointers = new ArrayList<>();
+    private final ConcurrentHashMap<Integer, Pointer> pointers = new ConcurrentHashMap<>();
+    public final MotionEvent.PointerProperties[] pointerProperties = new MotionEvent.PointerProperties[MAX_POINTERS];
+    public final MotionEvent.PointerCoords[] pointerCoords = new MotionEvent.PointerCoords[MAX_POINTERS];
 
-    private int indexOf(long id) {
-        for (int i = 0; i < pointers.size(); ++i) {
-            Pointer pointer = pointers.get(i);
-            if (pointer.getId() == id) {
-                return i;
+    public PointersState() {
+        // 初始化指针
+        for (int i = 0; i < MAX_POINTERS; ++i) {
+            MotionEvent.PointerProperties props = new MotionEvent.PointerProperties();
+            props.toolType = MotionEvent.TOOL_TYPE_FINGER;
+            pointerProperties[i] = props;
+
+            MotionEvent.PointerCoords coords = new MotionEvent.PointerCoords();
+            coords.orientation = 0;
+            coords.size = 0.01f;
+            coords.pressure = 1f;
+            pointerCoords[i] = coords;
+        }
+    }
+
+    public Pointer newPointer(int pointerId, long now) {
+        for (int i = 0; i < MAX_POINTERS; i++) {
+            if (isLocalIdAvailable(i)) {
+                Pointer pointer = new Pointer(i, now);
+                pointers.put(pointerId, pointer);
+                return pointer;
             }
         }
-        return -1;
+        return null;
+    }
+
+    public Pointer get(int pointerId) {
+        return pointers.get(pointerId);
     }
 
     private boolean isLocalIdAvailable(int localId) {
-        for (int i = 0; i < pointers.size(); ++i) {
-            Pointer pointer = pointers.get(i);
-            if (pointer.getLocalId() == localId) {
-                return false;
-            }
-        }
+        for (Pointer value : pointers.values()) if (value.id == localId) return false;
         return true;
     }
 
-    private int nextUnusedLocalId() {
-        for (int localId = 0; localId < MAX_POINTERS; ++localId) {
-            if (isLocalIdAvailable(localId)) {
-                return localId;
-            }
-        }
-        return -1;
+    public void remove(int pointerId) {
+        pointers.remove(pointerId);
     }
 
-    public Pointer get(int index) {
-        return pointers.get(index);
+    public int update() {
+        int i = 0;
+        for (Pointer value : pointers.values()) {
+            pointerProperties[i].id = value.id;
+            pointerCoords[i].x = value.x;
+            pointerCoords[i].y = value.y;
+            i++;
+        }
+        return i;
     }
 
-    public int getPointerIndex(long id) {
-        int index = indexOf(id);
-        if (index != -1) {
-            // already exists, return it
-            return index;
-        }
-        if (pointers.size() >= MAX_POINTERS) {
-            // it's full
-            return -1;
-        }
-        // id 0 is reserved for mouse events
-        int localId = nextUnusedLocalId();
-        if (localId == -1) {
-            throw new AssertionError("pointers.size() < maxFingers implies that a local id is available");
-        }
-        Pointer pointer = new Pointer(id, localId);
-        pointers.add(pointer);
-        // return the index of the pointer
-        return pointers.size() - 1;
-    }
-
-    /**
-     * Initialize the motion event parameters.
-     *
-     * @param props  the pointer properties
-     * @param coords the pointer coordinates
-     * @return The number of items initialized (the number of pointers).
-     */
-    public int update(MotionEvent.PointerProperties[] props, MotionEvent.PointerCoords[] coords) {
-        int count = pointers.size();
-        for (int i = 0; i < count; ++i) {
-            Pointer pointer = pointers.get(i);
-
-            // id 0 is reserved for mouse events
-            props[i].id = pointer.getLocalId();
-
-            Point point = pointer.getPoint();
-            coords[i].x = point.getX();
-            coords[i].y = point.getY();
-            coords[i].pressure = pointer.getPressure();
-        }
-        cleanUp();
-        return count;
-    }
-
-    /**
-     * Remove all pointers which are UP.
-     */
-    private void cleanUp() {
-        for (int i = pointers.size() - 1; i >= 0; --i) {
-            Pointer pointer = pointers.get(i);
-            if (pointer.isUp()) {
-                pointers.remove(i);
-            }
-        }
-    }
 }

@@ -14,7 +14,7 @@ public class Options {
     private int targetDisplayId = 0;
     private int bitRate = 8_000_000;
     private int fps = 60;
-    private int refreshInterval = 10;
+    private int refreshInterval = 3;
     private int layerStack = 0;
     private String displayName = "_dis_";
     private boolean mirror = false;//true mirror,false expand
@@ -68,10 +68,10 @@ public class Options {
                 }
             }
         }
-        if (options.cropRegion==null){
+        if (options.cropRegion == null) {
             options.setCropRegion(options.getDisplayRegion());
         }
-        System.out.println("Options class : createOptionsFromStr="+options.string());
+        System.out.println("Options class : createOptionsFromStr=" + options.string());
         return options;
     }
 

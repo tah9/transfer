@@ -92,9 +92,9 @@ public class TransferService {
                                     ServerSocket serverSocket = new ServerSocket(0);
                                     int dynamicPort = serverSocket.getLocalPort();
                                     //通知交互app,让其通知其他设备使用此端口
-                                    appSocket.getDataOutputStream().writeInt(dynamicPort);
                                     System.out.println("套接字创建完成 dynamicPort=" + dynamicPort);
-
+                                    appSocket.getDataOutputStream().writeInt(dynamicPort);
+                                    System.out.println("dynamicPort发送完成" + dynamicPort);
 
                                     new Thread(new Runnable() {
                                         @Override

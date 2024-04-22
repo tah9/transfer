@@ -1,56 +1,19 @@
 package com.genymobile.transfer.control;
 
 
-public class Pointer {
+public final class Pointer {
 
-    /**
-     * Pointer id as received from the client.
-     */
-    private final long id;
+    public int id;
 
-    /**
-     * Local pointer id, using the lowest possible values to fill the {@link android.view.MotionEvent.PointerProperties PointerProperties}.
-     */
-    private final int localId;
+    public float x;
 
-    private Point point;
-    private float pressure;
-    private boolean up;
+    public float y;
 
-    public Pointer(long id, int localId) {
+    public long downTime;
+
+    public Pointer(int id, long downTime) {
         this.id = id;
-        this.localId = localId;
+        this.downTime = downTime;
     }
 
-    public long getId() {
-        return id;
-    }
-
-    public int getLocalId() {
-        return localId;
-    }
-
-    public Point getPoint() {
-        return point;
-    }
-
-    public void setPoint(Point point) {
-        this.point = point;
-    }
-
-    public float getPressure() {
-        return pressure;
-    }
-
-    public void setPressure(float pressure) {
-        this.pressure = pressure;
-    }
-
-    public boolean isUp() {
-        return up;
-    }
-
-    public void setUp(boolean up) {
-        this.up = up;
-    }
 }

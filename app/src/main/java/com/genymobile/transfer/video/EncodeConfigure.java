@@ -22,12 +22,10 @@ public class EncodeConfigure {
         format.setInteger(MediaFormat.KEY_BIT_RATE, options.getBitRate());
         format.setInteger(MediaFormat.KEY_FRAME_RATE, options.getFps());
         format.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
-        format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, options.getRefreshInterval());
-        format.setLong(MediaFormat.KEY_REPEAT_PREVIOUS_FRAME_AFTER, options.getRepeatFrame()); // µs
-        // The key existed privately before Android 10:
-        // <https://android.googlesource.com/platform/frameworks/base/+/625f0aad9f7a259b6881006ad8710adce57d1384%5E%21/>
-        // <https://github.com/Genymobile/scrcpy/issues/488#issuecomment-567321437>
-        format.setFloat("max-fps-to-encoder", options.getMaxFps());
+        format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 3);
+//        format.setInteger(MediaFormat.KEY_INTRA_REFRESH_PERIOD, options.getFps() * 3);
+        format.setFloat("max-fps-to-encoder", options.getFps());
+        format.setLong(MediaFormat.KEY_REPEAT_PREVIOUS_FRAME_AFTER, 50_000);
 
         System.out.println("EncodeConfigure createFormat=" + format);
         return format;

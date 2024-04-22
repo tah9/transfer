@@ -10,6 +10,7 @@ import com.genymobile.transfer.Options;
 import com.genymobile.transfer.comon.Ln;
 import com.genymobile.transfer.control.ControlEvent;
 import com.genymobile.transfer.control.ControlEventReader;
+import com.genymobile.transfer.control.Pointer;
 import com.genymobile.transfer.control.PointersState;
 import com.genymobile.transfer.device.Device;
 import com.genymobile.transfer.wrappers.InputManager;
@@ -29,8 +30,8 @@ public class ControllerThread extends Thread {
     private Options options;
     private long lastTouchDown;
     private static final int DEFAULT_DEVICE_ID = 0;
-    private final PointersState pointersState = new PointersState();
     private final MotionEvent.PointerProperties[] pointerProperties = new MotionEvent.PointerProperties[PointersState.MAX_POINTERS];
+    private static final PointersState pointersState = new PointersState();
     private final MotionEvent.PointerCoords[] pointerCoords = new MotionEvent.PointerCoords[PointersState.MAX_POINTERS];
 
     public ControllerThread(Device device, Options options, Socket socket) {
@@ -63,15 +64,6 @@ public class ControllerThread extends Thread {
 
     private final ControlEventReader reader = new ControlEventReader();
 
-    public ControlEvent receiveControlEvent() throws IOException {
-        ControlEvent event = reader.next();
-        while (event == null) {
-            reader.readFrom(controlSocket.getInputStream());
-            event = reader.next();
-        }
-        return event;
-    }
-
 
     private static final String TAG = "EventController";
 
@@ -89,28 +81,19 @@ public class ControllerThread extends Thread {
             InputManager inputManager = ServiceManager.getInputManager();
 
             while (true) {
-                int downTime = 0;
-                int action = 0;
-                int count = 0;
-                downTime = ois.readInt();
-                action = ois.readInt();
-                count = ois.readInt();
-                System.out.println("pointerCounter " + count);
+                int downTime = ois.readInt();
+                int action = ois.readByte();
+                int count = ois.readByte();
+
+
 
 
                 for (int i = 0; i < count; i++) {
-                    pointerProperties[i].id = ois.readInt();
+                    pointerProperties[i].id = ois.readByte();
                     MotionEvent.PointerCoords pointerCoord = pointerCoords[i];
-                    pointerCoord.x = ois.readInt();
-                    pointerCoord.y = ois.readInt();
-                    pointerCoord.pressure = ois.readFloat();
+                    pointerCoord.x = ois.readFloat();
+                    pointerCoord.y = ois.readFloat();
                 }
-
-
-                int buttonState = 0;
-                int source = 0;
-                buttonState = ois.readInt();
-                source = ois.readInt();
 
                 try {
                     MotionEvent event = MotionEvent.obtain(
