@@ -84,24 +84,18 @@ public class ControllerThread extends Thread {
                 int downTime = ois.readInt();
                 int action = ois.readByte();
                 int count = ois.readByte();
-
-
-
-
                 for (int i = 0; i < count; i++) {
                     pointerProperties[i].id = ois.readByte();
                     MotionEvent.PointerCoords pointerCoord = pointerCoords[i];
                     pointerCoord.x = ois.readFloat();
                     pointerCoord.y = ois.readFloat();
                 }
-
                 try {
                     MotionEvent event = MotionEvent.obtain(
                             downTime, SystemClock.uptimeMillis(), action, count,
                             pointerProperties, pointerCoords,
                             0, 0, 1f, 1f, 0, 0,
                             InputDevice.SOURCE_TOUCHSCREEN, 0);
-
 
                     if (options.getTargetDisplayId() != Display.DEFAULT_DISPLAY) {
                         InputManager.setDisplayId(event, options.getTargetDisplayId());

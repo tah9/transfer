@@ -35,10 +35,7 @@ public class ScreenConfigure {
                         options.getDisplayRegion().width(),
                         options.getDisplayRegion().height(),
                         options.getDpi());
-
                 virtualDisplay.setSurface(surface);
-                System.out.println("virtualDisplay=" + (virtualDisplay == null));
-
                 return virtualDisplay.getDisplay().getDisplayId();
             } catch (Exception e) {
                 System.out.println("createVirtualDisplay error=" + e);

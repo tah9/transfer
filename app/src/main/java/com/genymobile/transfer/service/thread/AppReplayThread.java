@@ -35,7 +35,6 @@ public class AppReplayThread extends Thread {
 
             Surface surface = codec.createInputSurface();
 
-
             int displayId = ScreenConfigure.configureDisplay(options, surface);
             options.setTargetDisplayId(displayId);
 
@@ -55,7 +54,6 @@ public class AppReplayThread extends Thread {
             //2在指定显示器加载指定应用
             String amResult = RunProcess.runProcess("am start -n " + queryResult + " --display " + displayId);
             System.out.println("amResult=" + amResult);
-
 
             //开始传输视频流
             ScreenEncoder screenEncoder = new ScreenEncoder();
